@@ -14,7 +14,7 @@ O pipeline segue as boas práticas de engenharia e governança, garantindo o ras
 
 ### 📊 Data Lineage (Linhagem de Dados)
 A representação visual abaixo detalha o fluxo dos dados, as validações e as colunas tratadas para evitar data leakage:
-```mermaid
+````mermaid
 graph TD
     subgraph "1. Origem (CSV)"
         A[Arquivos Originais]
@@ -43,7 +43,7 @@ graph TD
 
     style C fill:#cd7f32,color:#fff
     style H fill:#c0c0c0,color:#000
-```
+````
 
 ---
 
