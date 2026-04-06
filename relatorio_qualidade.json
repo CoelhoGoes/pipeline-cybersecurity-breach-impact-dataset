@@ -1,0 +1,235 @@
+{
+  "title": "Relatório de Qualidade dos Dados - Camada Bronze",
+  "pipeline": [
+    {
+      "stage": 1,
+      "title": "Importações e organização de diretorio",
+      "purpose": "Preparar o ambiente e os caminhos usados pelo notebook.",
+      "steps": [
+        {
+          "type": "code",
+          "description": "%pip install -r ../requirements.txt",
+          "artifact": "Dependências do projeto"
+        },
+        {
+          "type": "code",
+          "description": "import os, pathlib, pandas, matplotlib, seaborn",
+          "artifact": "Bibliotecas carregadas"
+        },
+        {
+          "type": "code",
+          "description": "os.makedirs para bronze, origin e silver",
+          "artifact": "Estrutura de diretórios criada"
+        },
+        {
+          "type": "code",
+          "description": "Definição de ORIGIN_PATH e BRONZE_PATH",
+          "artifact": "Caminhos base da ingestão"
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "title": "Ingestão",
+      "purpose": "Ler os CSVs de origem e gravar os arquivos bronze em parquet.",
+      "sources": [
+        {
+          "file": "incidents_master.csv",
+          "rows": 850,
+          "columns": 32,
+          "md5_hash": "41816f8cb0a0",
+          "notebook_steps": [
+            "Leitura com pd.read_csv",
+            "Verificação de shape e head",
+            "Normalização de nomes para maiúsculo",
+            "Adição de INGESTION_DATE, INGESTION_SOURCE e TOTAL_ROWS",
+            "Persistência em incidents.parquet"
+          ]
+        },
+        {
+          "file": "market_impact.csv",
+          "rows": 358,
+          "columns": 31,
+          "md5_hash": "76ed3aacd262",
+          "notebook_steps": [
+            "Leitura com pd.read_csv",
+            "Verificação de shape e head",
+            "Normalização de nomes para maiúsculo",
+            "Adição de INGESTION_DATE, INGESTION_SOURCE e TOTAL_ROWS",
+            "Persistência em market_impact.parquet"
+          ]
+        },
+        {
+          "file": "financial_impact.csv",
+          "rows": 778,
+          "columns": 19,
+          "md5_hash": "8c3b7554bfd9",
+          "notebook_steps": [
+            "Leitura com pd.read_csv",
+            "Verificação de shape e head",
+            "Normalização de nomes para maiúsculo",
+            "Adição de INGESTION_DATE, INGESTION_SOURCE e TOTAL_ROWS",
+            "Persistência em financial_impact.parquet"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "title": "Analise de dados",
+      "purpose": "Executar checagens exploratórias e de qualidade na camada bronze.",
+      "datasets": [
+        {
+          "name": "incidents_bronze",
+          "steps": [
+            "Carregamento de incidents.parquet",
+            "Cálculo de valores nulos",
+            "Contagem de linhas sem nulos",
+            "Verificação de IDs duplicados",
+            "Inspeção de tipos e estatísticas descritivas"
+          ],
+          "null_analysis": {
+            "rows_without_nulls": 0,
+            "rows_with_any_nulls": 850,
+            "critical_columns": [
+              {"column": "review_flag", "nulls": 780, "total_rows": 850, "null_percentage": 91.76, "action": "Preenchido com 'Unknown'"},
+              {"column": "industry_secondary", "nulls": 697, "total_rows": 850, "null_percentage": 82.0, "action": "Preenchido com 'Unknown'"},
+              {"column": "attack_vector_secondary", "nulls": 639, "total_rows": 850, "null_percentage": 75.18, "action": "Preenchido com 'Unknown'"},
+              {"column": "notes", "nulls": 636, "total_rows": 850, "null_percentage": 74.82, "action": "Coluna descartada"},
+              {"column": "data_source_secondary", "nulls": 464, "total_rows": 850, "null_percentage": 54.59, "action": "Coluna descartada"},
+              {"column": "stock_ticker", "nulls": 438, "total_rows": 850, "null_percentage": 51.53, "action": "Preenchido com 'Unknown'"},
+              {"column": "downtime_hours", "nulls": 430, "total_rows": 850, "null_percentage": 50.59, "action": "Preenchido com 0"},
+              {"column": "attributed_group", "nulls": 368, "total_rows": 850, "null_percentage": 43.29, "action": "Preenchido com 'Unknown'"},
+              {"column": "attribution_confidence", "nulls": 368, "total_rows": 850, "null_percentage": 43.29, "action": "Preenchido com 'Unknown'"},
+              {"column": "attack_chain", "nulls": 275, "total_rows": 850, "null_percentage": 32.35, "action": "Preenchido com 'Unknown'"},
+              {"column": "data_compromised_records", "nulls": 248, "total_rows": 850, "null_percentage": 29.18, "action": "Preenchido com 0"},
+              {"column": "data_type", "nulls": 248, "total_rows": 850, "null_percentage": 29.18, "action": "Preenchido com 'Unknown'"}
+            ]
+          },
+          "duplication_analysis": {"duplicate_rows": 0, "duplicate_incident_ids": 0},
+          "consistency_analysis": {
+            "attack_vector_primary": {"status": "ok", "allowed_values": ["apt", "backdoor", "data_breach", "ddos", "malware", "phishing", "ransomware", "supply_chain", "trojan"]},
+            "quality_grade": {"status": "ok", "values_found": ["Bronze", "Silver", "Gold"]}
+          },
+          "date_validation": {"columns": ["incident_date", "discovery_date", "disclosure_date"], "invalid_rows": 0, "status": "ok"}
+        },
+        {
+          "name": "market_bronze",
+          "steps": [
+            "Carregamento de market_impact.parquet",
+            "Cálculo de valores nulos",
+            "Contagem de linhas sem nulos",
+            "Verificação de IDs duplicados",
+            "Inspeção de tipos e estatísticas descritivas"
+          ],
+          "null_analysis": {
+            "rows_without_nulls": 83,
+            "rows_with_any_nulls": 275,
+            "critical_columns": [
+              {"column": "notes", "nulls": 266, "total_rows": 358, "null_percentage": 74.3, "action": "Coluna descartada"},
+              {"column": "days_to_price_recovery", "nulls": 36, "total_rows": 358, "null_percentage": 10.06, "action": "Coluna descartada (Leakage)"}
+            ]
+          },
+          "duplication_analysis": {"duplicate_rows": 0, "duplicate_incident_ids": 0},
+          "consistency_analysis": {"text_columns": [], "status": "ok"},
+          "numeric_validation": {"status": "ok", "columns_pattern": ["abnormal_return_*", "price_*"]}
+        },
+        {
+          "name": "financial_bronze",
+          "steps": [
+            "Carregamento de financial_impact.parquet",
+            "Cálculo de valores nulos",
+            "Contagem de linhas sem nulos",
+            "Verificação de IDs duplicados",
+            "Inspeção de tipos e estatísticas descritivas"
+          ],
+          "null_analysis": {
+            "rows_without_nulls": 0,
+            "rows_with_any_nulls": 778,
+            "critical_columns": [
+              {"column": "ransom_paid_usd", "nulls": 692, "total_rows": 778, "null_percentage": 88.95, "action": "Coluna descartada (Leakage)"},
+              {"column": "ransom_source", "nulls": 692, "total_rows": 778, "null_percentage": 88.95, "action": "Coluna descartada (Leakage)"},
+              {"column": "regulatory_fine_usd", "nulls": 646, "total_rows": 778, "null_percentage": 83.03, "action": "Coluna descartada (Leakage)"},
+              {"column": "ransom_demanded_usd", "nulls": 572, "total_rows": 778, "null_percentage": 73.52, "action": "Preenchido com 0 (sem pedido de resgate)"},
+              {"column": "notes", "nulls": 530, "total_rows": 778, "null_percentage": 68.12, "action": "Coluna descartada"},
+              {"column": "insurance_payout_usd", "nulls": 343, "total_rows": 778, "null_percentage": 44.09, "action": "Coluna descartada (Leakage)"}
+            ]
+          },
+          "duplication_analysis": {"duplicate_rows": 0, "duplicate_incident_ids": 0},
+          "consistency_analysis": {"text_columns": ["direct_loss_method", "total_loss_method"], "status": "ok"},
+          "numeric_validation": {"status": "ok", "columns_pattern": ["direct_loss_usd", "total_loss_usd"]}
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "title": "Tratamentos para a camada prata",
+      "purpose": "Aplicar limpeza, tratamento de leakage e criação de targets antes da exportação.",
+      "datasets": [
+        {
+          "name": "incidents_prata",
+          "transformations": [
+            "Converter colunas de data para datetime",
+            "Preencher categorias com Unknown",
+            "Preencher valores numéricos com 0 quando aplicável",
+            "Remover colunas de ruído/metadados",
+            "Criar target_severidade",
+            "Salvar em incidents_prata.parquet"
+          ],
+          "removed_columns": ["NOTES", "DATA_SOURCE_SECONDARY", "CREATED_AT", "UPDATED_AT"],
+          "filled_columns": ["INDUSTRY_SECONDARY", "ATTACK_VECTOR_SECONDARY", "ATTRIBUTED_GROUP", "DATA_TYPE", "STOCK_TICKER", "REVIEW_FLAG", "ATTACK_CHAIN", "ATTRIBUTION_CONFIDENCE", "DATA_COMPROMISED_RECORDS", "DOWNTIME_HOURS"]
+        },
+        {
+          "name": "market_prata",
+          "transformations": [
+            "Remover colunas de leakage e metadados",
+            "Converter INGESTION_DATE para datetime",
+            "Criar target_market_impact",
+            "Remover ABNORMAL_RETURN_1D para evitar leakage do target",
+            "Salvar em market_prata.parquet"
+          ],
+          "removed_columns": ["PRICE_7D_AFTER", "PRICE_30D_AFTER", "ABNORMAL_RETURN_7D", "ABNORMAL_RETURN_30D", "CAR_0_TO_7", "CAR_0_TO_30", "CAR_0_TO_90", "DAYS_TO_PRICE_RECOVERY", "NOTES", "POST_INCIDENT_VOLATILITY_30D", "T_STATISTIC_30D", "P_VALUE_30D", "CREATED_AT", "UPDATED_AT", "ABNORMAL_RETURN_1D"]
+        },
+        {
+          "name": "financial_prata",
+          "transformations": [
+            "Remover colunas de leakage e metadados",
+            "Preencher RANSOM_DEMANDED_USD com 0",
+            "Criar TARGET_SEVERE_LOSS",
+            "Remover colunas de perda total para evitar leakage do target",
+            "Converter INGESTION_DATE para datetime",
+            "Salvar em financial_prata.parquet"
+          ],
+          "removed_columns": ["RANSOM_PAID_USD", "RANSOM_SOURCE", "REGULATORY_FINE_USD", "INSURANCE_PAYOUT_USD", "NOTES", "CREATED_AT", "UPDATED_AT", "TOTAL_LOSS_USD", "TOTAL_LOSS_LOWER_BOUND", "TOTAL_LOSS_UPPER_BOUND"],
+          "filled_columns": ["RANSOM_DEMANDED_USD"]
+        }
+      ]
+    },
+    {
+      "stage": 5,
+      "title": "Analise Exploratória de Dados (EDA)",
+      "purpose": "Explorar a camada prata com visualizações e cruzamentos entre datasets.",
+      "visualizations": [
+        "Média de perda direta por indústria primária",
+        "Número de incidentes por ano",
+        "Top 10 países com mais incidentes",
+        "Variação percentual média do preço por severidade"
+      ],
+      "joins": [
+        {"left": "incidents_prata", "right": "financial_prata", "key": "INCIDENT_ID", "join_type": "inner"},
+        {"left": "incidents_prata", "right": "market_prata", "key": "INCIDENT_ID", "join_type": "inner"}
+      ]
+    },
+    {
+      "stage": 6,
+      "title": "Conclusão e Próximos Passos",
+      "summary": "Os dados foram filtrados, limpos e exportados para a camada prata com retenção de 100% em todos os arquivos.",
+      "retention": [
+        {"source_file": "incidents_master.csv", "bronze_rows": 850, "silver_rows": 850, "retention_rate": "100%"},
+        {"source_file": "market_impact.csv", "bronze_rows": 358, "silver_rows": 358, "retention_rate": "100%"},
+        {"source_file": "financial_impact.csv", "bronze_rows": 778, "silver_rows": 778, "retention_rate": "100%"}
+      ],
+      "note": "A taxa de retenção de 100% em todos os arquivos deve-se à ausência de linhas nulas em chaves primárias e de registros duplicados."
+    }
+  ]
+}
