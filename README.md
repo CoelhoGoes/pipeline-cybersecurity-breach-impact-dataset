@@ -23,7 +23,7 @@ graph TD
     subgraph "2. Camada Bronze (Raw)"
         A --> B{Ingestão e Metadados}
         B -->|Parquet| C[(Dataset Bronze)]
-        B --- D[Metadados: Nome, Linhas, Data/Hora]
+        B --- D[Metadados: Nome, Data/Hora]
     end
 
     subgraph "3. Validação e Qualidade"
