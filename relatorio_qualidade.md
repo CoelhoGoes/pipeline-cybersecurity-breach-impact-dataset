@@ -1,13 +1,11 @@
 # 📊 Relatório de Qualidade dos Dados - Camada Bronze
 
 **Projeto:** Construção das Camadas Bronze e Prata para Dados de Machine Learning  
-**Equipe:** [Nome do Membro 1], [Nome do Membro 2], [Nome do Membro 3]  
-**Responsável pela Validação (Inspetor):** [Seu Nome]  
-**Data da Avaliação:** [DD/MM/AAAA]  
 
 ---
 
 ## 1. Visão Geral dos Datasets (Camada Bronze)
+
 Resumo das características iniciais dos três arquivos de dados brutos após a ingestão:
 
 | Atributo | `incidents_master.csv` | `market_impact.csv` | `financial_impact.csv` |
@@ -19,6 +17,7 @@ Resumo das características iniciais dos três arquivos de dados brutos após a 
 ---
 
 ## 2. Matriz de Critérios de Qualidade
+
 Esta tabela define as regras automáticas de validação e os critérios claros utilizados para identificar falhas nos datasets.
 
 | Dimensão | Regra de Validação | Critério de Falha | Ação na Camada Prata |
@@ -38,29 +37,37 @@ Esta tabela define as regras automáticas de validação e os critérios claros 
 ### 3.1. `incidents_master.csv`
 
 #### 3.1.1. Análise de Valores Nulos
-* **Linhas afetadas:** Todas as **850 linhas** contêm pelo menos um valor nulo.
+
+* **Linhas sem nulos:** **0 linhas** totalmente completas; todas as **850 linhas** contêm pelo menos um valor nulo.
 * **Colunas mais críticas:**
 
 | Coluna | % de Nulos | Ação Aplicada |
 | :--- | :---: | :--- |
-| `review_flag` | 91,76% | Preenchido com `'Unknown'` |
-| `industry_secondary` | 82,00% | Preenchido com `'Unknown'` |
-| `attack_vector_secondary` | 75,18% | Preenchido com `'Unknown'` |
-| `notes` | 74,82% | Coluna descartada |
-| `data_source_secondary` | 54,59% | Coluna descartada |
-| `stock_ticker` | 51,53% | Preenchido com `'Unknown'` |
-| `downtime_hours` | 50,59% | Preenchido com `0` |
-| `attribution_confidence` | 43,29% | Preenchido com `'Unknown'` |
+| `review_flag` | 780 de 850 (91,76%) | Preenchido com `'Unknown'` |
+| `industry_secondary` | 697 de 850 (82,00%) | Preenchido com `'Unknown'` |
+| `attack_vector_secondary` | 639 de 850 (75,18%) | Preenchido com `'Unknown'` |
+| `notes` | 636 de 850 (74,82%) | Coluna descartada |
+| `data_source_secondary` | 464 de 850 (54,59%) | Coluna descartada |
+| `stock_ticker` | 438 de 850 (51,53%) | Preenchido com `'Unknown'` |
+| `downtime_hours` | 430 de 850 (50,59%) | Preenchido com `0` |
+| `attributed_group` | 368 de 850 (43,29%) | Preenchido com `'Unknown'` |
+| `attribution_confidence` | 368 de 850 (43,29%) | Preenchido com `'Unknown'` |
+| `attack_chain` | 275 de 850 (32,35%) | Preenchido com `'Unknown'` |
+| `data_compromised_records` | 248 de 850 (29,18%) | Preenchido com `0` |
+| `data_type` | 248 de 850 (29,18%) | Preenchido com `'Unknown'` |
 
 #### 3.1.2. Análise de Duplicidade
+
 * Foram identificadas **0 linhas completamente duplicadas** no dataset.
 * Foram identificados **0 IDs duplicados** na coluna `incident_id`.
 
 #### 3.1.3. Inconsistências em Categorias e Textos
+
 * **Coluna `attack_vector_primary`:** Todos os valores pertencem ao domínio esperado (`apt`, `backdoor`, `data_breach`, `ddos`, `malware`, `phishing`, `ransomware`, `supply_chain`, `trojan`). Nenhuma inconsistência encontrada.
 * **Coluna `quality_grade`:** Valores encontrados: `Bronze`, `Silver`, `Gold`. Nenhuma inconsistência encontrada.
 
 #### 3.1.4. Validação de Datas
+
 * **Colunas de data** (`incident_date`, `discovery_date`, `disclosure_date`): Todos os registros estão no padrão `YYYY-MM-DD`. **0 registros** com formato inválido.
 
 ---
@@ -68,7 +75,8 @@ Esta tabela define as regras automáticas de validação e os critérios claros 
 ### 3.2. `market_impact.csv`
 
 #### 3.2.1. Análise de Valores Nulos
-* **Linhas afetadas:** **275 linhas** contêm pelo menos um valor nulo.
+
+* **Linhas sem nulos:** **83 linhas** totalmente completas; **275 linhas** contêm pelo menos um valor nulo.
 * **Colunas mais críticas:**
 
 | Coluna | % de Nulos | Ação Aplicada |
@@ -77,13 +85,17 @@ Esta tabela define as regras automáticas de validação e os critérios claros 
 | `days_to_price_recovery` | 10,06% | Coluna descartada (Leakage) |
 
 #### 3.2.2. Análise de Duplicidade
-* Foram identificadas **0 linhas completamente duplicadas** no dataset.
+
+* Foram identificadas **0 linhas completamente
+duplicadas** no dataset.
 * Foram identificados **0 IDs duplicados** na coluna `incident_id`.
 
 #### 3.2.3. Inconsistências em Categorias e Textos
+
 * Não há colunas categóricas textuais neste arquivo além de `stock_ticker` (identificador). Nenhuma inconsistência encontrada.
 
 #### 3.2.4. Validação de Formatos Numéricos
+
 * As colunas de retorno anormal (`abnormal_return_*`) e preços (`price_*`) são numéricas contínuas. Nenhum valor fora do tipo esperado foi encontrado.
 
 ---
@@ -91,7 +103,8 @@ Esta tabela define as regras automáticas de validação e os critérios claros 
 ### 3.3. `financial_impact.csv`
 
 #### 3.3.1. Análise de Valores Nulos
-* **Linhas afetadas:** Todas as **778 linhas** contêm pelo menos um valor nulo.
+
+* **Linhas sem nulos:** **0 linhas** totalmente completas; todas as **778 linhas** contêm pelo menos um valor nulo.
 * **Colunas mais críticas:**
 
 | Coluna | % de Nulos | Ação Aplicada |
@@ -104,18 +117,22 @@ Esta tabela define as regras automáticas de validação e os critérios claros 
 | `insurance_payout_usd` | 44,09% | Coluna descartada (Leakage) |
 
 #### 3.3.2. Análise de Duplicidade
+
 * Foram identificadas **0 linhas completamente duplicadas** no dataset.
 * Foram identificados **0 IDs duplicados** na coluna `incident_id`.
 
 #### 3.3.3. Inconsistências em Categorias e Textos
+
 * **Coluna `direct_loss_method`** e **`total_loss_method`**: Colunas de texto descritivo livre, sem domínio fixo. Não foram aplicadas regras de padronização.
 
 #### 3.3.4. Validação de Formatos Numéricos
+
 * Todas as colunas de valor monetário (`direct_loss_usd`, `total_loss_usd`, etc.) são numéricas contínuas. Nenhum valor fora do tipo esperado foi encontrado.
 
 ---
 
 ## 4. Conclusão e Próximos Passos
+
 Com base nas validações automáticas descritas acima, os três datasets foram filtrados e limpos. Os dados aprovados ou tratados mediante as ações estabelecidas na Matriz de Qualidade foram exportados com sucesso para a **Camada Prata** em formato Parquet, estando prontos para o cruzamento e criação dos labels finais.
 
 | Arquivo Origem | Linhas Bronze | Linhas Prata | Taxa de Retenção |
